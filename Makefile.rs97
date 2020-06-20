@@ -1,0 +1,29 @@
+PRGNAME     = rockbot
+CXX				= /opt/rs97-toolchain/bin/mipsel-linux-g++
+STRIP			= /opt/rs97-toolchain/bin/mipsel-linux-strip
+
+OBJS   = main.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o collision_detection.o graphicslib.o \
+sceneslib.o stage_select.o graphic/option_picker.o classmap.o objects/object.o character/character.o projectilelib.o \
+graphic/animation.o stage.o class_config.o scenes/dialogs.o game.o character/classplayer.o \
+character/classnpc.o character/artificial_inteligence.o aux_tools/trajectory_parabola.o file/convert.o \
+graphic/draw.o graphic/gfx_sin_wave.o character/movement/jump.o character/movement/inertia.o scenes/sceneshow.o \
+game_mediator.o strings_map.o file/fio_strings.o file/fio_common.o \
+file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o docs/game_manual.o aux_tools/exception_manager.o \
+character/character_animation.o scenes/game_menu.o
+ 
+CXXFLAGS		= -O3 -fdata-sections -ffunction-sections -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fsingle-precision-constant -fno-common -mxgot -mips32 -mno-mips16 -fno-PIC -mno-abicalls -flto -fwhole-program
+CXXFLAGS		+= -DALIGN_DWORD -DDINGUX
+CXXFLAGS		+= -DLSB_FIRST -I.
+
+LDFLAGS     = -lc -lgcc -lbz2 -lstdc++ -ldl -lSDL -lSDL_gfx -lSDL_mixer -lmad -lmikmod -logg -lvorbisidec -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz -no-pie -Wl,--as-needed -Wl,--gc-sections -flto -s
+
+# Rules to make executable
+$(PRGNAME): $(OBJS)  
+	$(CXX) $(CXXFLAGS) -o $(PRGNAME) $^ $(LDFLAGS)
+	$(STRIP) $(PRGNAME) -s -R .comment -R .gnu.version --remove-section=.note --remove-section=.comment --strip-unneeded --strip-all
+
+$(OBJS) : %.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm $(OBJS)

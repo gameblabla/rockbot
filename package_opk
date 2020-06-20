@@ -1,0 +1,37 @@
+#!/bin/sh
+
+mkdir -p opk
+cp -r ./build/fonts opk/fonts
+cp -r ./build/games opk/games
+cp -r ./build/packages opk/packages
+cp -r ./build/shared opk/shared
+cp -r ./build/template opk/template
+cp ./build/strings_ingame.dat opk/strings_ingame.dat
+cp ./aux_tools/rockbot.png opk/rockbot.png
+cp ./rockbot opk/rockbot.elf
+
+# https://unix.stackexchange.com/questions/219268/how-to-add-new-lines-when-using-echo
+print()
+	case    ${IFS- } in
+	(\ *)   printf  %b\\n "$*";;
+	(*)     IFS=\ $IFS
+	printf  %b\\n "$*"
+	IFS=${IFS#?}
+esac
+
+# Create GmenuNx entry file plus other things
+
+print '[Desktop Entry]
+Type=Application
+Name=Rockbot
+Comment=Rockbot
+Exec=rockbot.elf
+Icon=rockbot
+Terminal=false
+Type=Application
+Categories=games;
+X-OD-NeedsDownscaling=true' > opk/default."$1".desktop
+
+mksquashfs ./opk rockbot_"$1".opk -all-root -noappend -no-exports -no-xattrs
+
+rm -r opk
